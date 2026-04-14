@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Copy this file to Directory.Build.props and set paths for your install. -->
+    <DataCenterGameDir Condition="'$(DataCenterGameDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Data Center</DataCenterGameDir>
+    <MelonLoaderNet6Dir>$(DataCenterGameDir)\MelonLoader\net6</MelonLoaderNet6Dir>
+    <Il2CppInteropAssembliesDir Condition="'$(Il2CppInteropAssembliesDir)' == ''">$(DataCenterGameDir)\MelonLoader\Il2CppAssemblies</Il2CppInteropAssembliesDir>
+    <GregCoreDir Condition="'$(GregCoreDir)' == ''">$(MSBuildThisFileDirectory)libs\</GregCoreDir>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,22 @@
+---
+description: After editing Mass Cable Remover sources, run a Release MSBuild.
+alwaysApply: true
+---
+
+# Release build after changes
+
+Whenever you modify anything in this workspace (C# sources, `.csproj`, `Directory.Build.props`, Harmony patches, etc.), finish by running a **Release** build with the **shell current directory set to this repo root** (the folder that contains `MassCableRemover.sln` and `MassCableRemover.csproj`). If invoking via tools, pass that folder as `working_directory`; do not run `dotnet build` without a cwd that resolves to this project, or the real `bin\Release` output may not update.
+
+```bash
+dotnet build MassCableRemover.sln -c Release
+```
+
+The output DLL is `bin\Release\MassCableRemover.dll` (same folder as `MassCableRemover.csproj`).
+
+To also copy into the game `Mods` folder (when `DataCenterGameDir` in `Directory.Build.props` is correct), use:
+
+```bash
+dotnet build MassCableRemover.sln -c Release /p:CopyToGameMods=true
+```
+
+Do not skip the Release build after substantive edits; fix any compile errors before ending the turn.

@@ -1,0 +1,10 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local MSBuild paths (copy from Directory.Build.props.example)
+Directory.Build.props
