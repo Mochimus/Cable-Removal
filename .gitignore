@@ -1,4 +1,6 @@
-bin/
+bin/Debug/
+bin/Release/*
+!bin/Release/MassCableRemover.dll
 obj/
 .vs/
 *.user
