@@ -1,1 +1,1 @@
-# Cable-Removal
+Mass Cable Remover is a MelonLoader (IL2CPP) mod for Data Center. Hold CTRL and look at a network switch or patch panel, then hold right mouse to fill the charge ring using the game’s interact hold time; when it completes, all cables on that device are disconnected. Version 0.1.0, created by Mochimus
