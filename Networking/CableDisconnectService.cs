@@ -14,7 +14,7 @@ public static class CableDisconnectService
 {
     private const int MaxDisconnectCablesSweep = 64;
 
-    public static bool TryDisconnectOnNetworkSwitch(NetworkSwitch sw)
+    public static bool TryDisconnectOnNetworkSwitch(NetworkSwitch sw, bool logDetails = true)
     {
         if (sw == null)
             return false;
@@ -25,8 +25,11 @@ public static class CableDisconnectService
             var mapRemoved = TryRemoveRegisteredCablesOnMap(sw.cableLinkSwitchPorts);
             var sweep = SweepDisconnectCables(sw);
 
-            MelonLogger.Msg(
-                $"[MassCableRemover] Switch: SecondAction ports={secondActions}, NetworkMap.RemoveCableConnection calls={mapRemoved}, DisconnectCables sweep={sweep}; any left={sw.IsAnyCableConnected()}.");
+            if (logDetails)
+            {
+                MelonLogger.Msg(
+                    $"[MassCableRemover] Switch: SecondAction ports={secondActions}, NetworkMap.RemoveCableConnection calls={mapRemoved}, DisconnectCables sweep={sweep}; any left={sw.IsAnyCableConnected()}.");
+            }
 
             return secondActions > 0 || mapRemoved > 0 || sweep > 0;
         }
@@ -37,7 +40,7 @@ public static class CableDisconnectService
         }
     }
 
-    public static bool TryDisconnectOnPatchPanel(PatchPanel panel)
+    public static bool TryDisconnectOnPatchPanel(PatchPanel panel, bool logDetails = true)
     {
         if (panel == null)
             return false;
@@ -47,8 +50,11 @@ public static class CableDisconnectService
             var secondActions = TrySecondActionOnAllPorts(panel.cableLinkPorts);
             var mapRemoved = TryRemoveRegisteredCablesOnMap(panel.cableLinkPorts);
 
-            MelonLogger.Msg(
-                $"[MassCableRemover] Patch panel: SecondAction ports={secondActions}, NetworkMap.RemoveCableConnection calls={mapRemoved}; any left={panel.IsAnyCableConnected()}.");
+            if (logDetails)
+            {
+                MelonLogger.Msg(
+                    $"[MassCableRemover] Patch panel: SecondAction ports={secondActions}, NetworkMap.RemoveCableConnection calls={mapRemoved}; any left={panel.IsAnyCableConnected()}.");
+            }
 
             return secondActions > 0 || mapRemoved > 0;
         }
@@ -57,6 +63,53 @@ public static class CableDisconnectService
             MelonLogger.Error("[MassCableRemover] Patch panel disconnect failed: " + ex);
             return false;
         }
+    }
+
+    /// <summary>
+    /// Disconnects cables on every <see cref="NetworkSwitch"/> and <see cref="PatchPanel"/> in loaded scenes (world purge).
+    /// </summary>
+    public static void TryDisconnectAllInWorld()
+    {
+        var switches = Resources.FindObjectsOfTypeAll<NetworkSwitch>();
+        var panels = Resources.FindObjectsOfTypeAll<PatchPanel>();
+        var switchDone = 0;
+        var panelDone = 0;
+
+        if (switches != null)
+        {
+            for (var i = 0; i < switches.Length; i++)
+            {
+                var sw = switches[i];
+                if (sw == null || !IsInLoadedScene(sw.gameObject))
+                    continue;
+                if (TryDisconnectOnNetworkSwitch(sw, logDetails: false))
+                    switchDone++;
+            }
+        }
+
+        if (panels != null)
+        {
+            for (var i = 0; i < panels.Length; i++)
+            {
+                var p = panels[i];
+                if (p == null || !IsInLoadedScene(p.gameObject))
+                    continue;
+                if (TryDisconnectOnPatchPanel(p, logDetails: false))
+                    panelDone++;
+            }
+        }
+
+        MelonLogger.Msg($"[MassCableRemover] World purge finished. Switches touched={switchDone}, patch panels touched={panelDone}.");
+    }
+
+    private static bool IsInLoadedScene(GameObject go)
+    {
+        if (go == null)
+            return false;
+        var s = go.scene;
+        if (!s.IsValid())
+            return false;
+        return s.isLoaded;
     }
 
     private static int TrySecondActionOnAllPorts(Il2CppReferenceArray<CableLink> ports)
